@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: book-service
+          uri: lb://book-service
+          predicates:
+            - Path=/v1/book/**
+        - id: library-service
+          uri: lb://library-service
+          predicates:
+            - Path=/v1/library/**
+      discovery:
+        locator:
+          enabled: true  # Eureka kullanılarak dinamik servis keşfi yapmasını sağlar.
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0  # Bu ayar, tüm span'lerin Zipkin'e gönderilmesini sağlar.
+server:
+  port: 9090  # Gateway'in dinlediği port. Tüm istekler bu port üzerinden gelir.
+
+eureka:
+  client:
+    register-with-eureka: true  # Bu servisin Eureka'ya kayıt olup olmadığını belirtir.
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}  # Eureka sunucusunun adresi.
+  instance:
+    prefer-ip-address: true  # IP adresini tercih etme ayarı, DNS yerine IP üzerinden iletişim sağlar.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Tüm yönetim uç noktalarını etkinleştirir.
+        exclude: info  # 'info' uç noktası hariç tutulur.
